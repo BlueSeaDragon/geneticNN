@@ -5,7 +5,7 @@ from .LayerModel import LayerModel
 from .Layer import Layer, LayerIOLink
 
 
-class Network:
+class Network(Hashable):
     """
     Network Class
 
@@ -75,6 +75,7 @@ class Network:
             The output layer of the network.
 
         """
+        super(Network, self).__init__()
         self.input_layer = input_layer
         self.output_layer = output_layer
         self.layers = list(set(layers))
@@ -300,3 +301,14 @@ class Network:
 
     def get_unique_variables(self):
         pass
+
+    def __format__(self, format_spec):
+        output = f"Network {self.__class__.__name__}-{self.hash}(\n" f" models: [\n"
+
+        for model in self.models:
+            output += f"  {model},\n"
+        output += f" ],\n" f" layers: [\n"
+        for layer in self.layers:
+            output += f"  {layer},\n"
+        output += f" ],\n" f")"
+        return output

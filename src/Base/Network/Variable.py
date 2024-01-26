@@ -7,7 +7,7 @@ from .Parameter import Parameter, ParameterListener
 
 
 if TYPE_CHECKING:
-    from ..modelskeleton import LayerModel
+    from .LayerModel import LayerModel
 
 
 class VariableInstance(Hashable):
@@ -137,9 +137,9 @@ class Variable(Hashable, ParameterListener):
         dimension: int,
         variable_io: Literal["in", "out"],
         data_type: type,
-        attached_model: Optional["LayerModel"],
-        linked_variables: Optional[set["Variable"]],
         instantiable: bool = True,
+        attached_model: Optional["LayerModel"] = None,
+        linked_variables: Optional[set["Variable"]] = None,
     ):
         """
         Initializes a new instance of the Variable class.
@@ -166,8 +166,8 @@ class Variable(Hashable, ParameterListener):
         self.dimension: int = dimension
         self.variable_io: Literal["in", "out"] = variable_io
         self.data_type = data_type
-        self.linked_variables: set["Variable"] = linked_variables
-        self.attached_model: LayerModel = attached_model
+        self.linked_variables: set["Variable"] = linked_variables or []
+        self.attached_model: LayerModel = attached_model or []
         self.global_parameters: List[Parameter] = []
         self.instances: Dict[Hashable, VariableInstance] = {}
         self.instantiable: bool = instantiable

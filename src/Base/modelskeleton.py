@@ -2,6 +2,7 @@ import copy
 import warnings
 
 from .Network.Layer import Layer
+from .Network.Parameter import ParameterListener, Parameter
 from .modeltemplate import *
 from typing import List, Dict, Literal, Set
 
@@ -42,10 +43,7 @@ class Hashable:
         return self.hash == other.hash
 
 
-c
-
-
-class Variable(Hashable, Parameter_listener):
+class Variable(Hashable, ParameterListener):
     """
 
     :class: Variable
@@ -76,7 +74,7 @@ class Variable(Hashable, Parameter_listener):
     """
 
     class Instance(Hashable):
-        def __init__(self, source: Variable, hook: Hashable):
+        def __init__(self, source: "Variable", hook: Hashable):
             super().__init__()
             self.source: Variable = source
             self.hook: Hashable = hook

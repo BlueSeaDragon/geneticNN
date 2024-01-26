@@ -117,7 +117,7 @@ class LayerModel(Hashable):
                 variable.attach_model(self)
 
     def attach_layer(self, layer: "Layer"):
-        if isinstance(layer, Layer):
+        if isinstance(layer, Hashable):
             if layer not in self.attached_layers:
                 self.attached_layers.append(layer)
                 for variable in self.input_variables:
@@ -129,7 +129,7 @@ class LayerModel(Hashable):
                 "incorrect type for layers to attach : {type}".format(type=type(layer))
             )
 
-    def detach_layer(self, layer: Layer):
+    def detach_layer(self, layer: "Layer"):
         if layer in self.attached_layers:
             self.attached_layers.remove(layer)
             for variable in self.input_variables:
@@ -332,6 +332,7 @@ class OutputModel(LayerModel):
                 variable.make_instantiable(False)
 
 
+##WIP##
 class TemplatedModel(LayerModel):
     def __init__(self, name: str, template_type, source, template_source=""):
         super(TemplatedModel, self).__init__(name)

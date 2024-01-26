@@ -139,4 +139,4 @@ class Layer(Hashable):
         return list(set(previous_layers))
 
     def __format__(self, format_spec):
-        return f"{self.__class__.__name__}-{self.hash} of model{self.model})"
+        return f"{self.__class__.__name__}-{self.hash} using model {self.model})"

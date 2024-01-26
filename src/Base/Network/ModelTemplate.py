@@ -8,8 +8,8 @@ class ModelTemplate(ABC):
     def __init__(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def properties(self):
         pass
 
