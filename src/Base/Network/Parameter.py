@@ -1,5 +1,5 @@
 from ..Base import Hashable
-from typing import Any, List
+from typing import Any, List, Optional
 
 
 class ParameterListener:
@@ -34,7 +34,7 @@ class Parameter(Hashable):
         self,
         name: str,
         parameter_type,
-        parent: Any | None = None,
+        parent: Optional[Any] = None,
         listeners: list[ParameterListener] = None,
     ):
         super(Parameter, self).__init__()

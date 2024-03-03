@@ -1,4 +1,4 @@
-from typing import Dict, List, Set, Literal, Optional
+from typing import Dict, List, Set, Literal, Optional, Union
 from typing import TYPE_CHECKING
 
 
@@ -221,7 +221,7 @@ class Variable(Hashable, ParameterListener):
             del self.instances[hook]
 
     def add_linked_variables(
-        self, linked_variables: "Variable" | List["Variable"]
+        self, linked_variables: Union['Variable', List['Variable']]
     ) -> None:
         """
         Adds a variable or a list of variables to the linked variables.

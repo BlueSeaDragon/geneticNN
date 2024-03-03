@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Union
 
 from ..Base import Hashable
 from .Variable import Variable
@@ -46,7 +46,7 @@ class Layer(Hashable):
         self.inputs: Dict[Variable, Tuple[Layer, Variable]] = {}
         self.outputs: Dict[Variable, List[Tuple[Layer, Variable]]] = {}
 
-    def set_io_links(self, links: LayerIOLink | list[LayerIOLink]):
+    def set_io_links(self, links: Union[LayerIOLink, list[LayerIOLink]]):
         if isinstance(links, LayerIOLink):
             links = [links]
         elif isinstance(links, list):

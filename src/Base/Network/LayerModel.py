@@ -75,7 +75,7 @@ class LayerModel(Hashable):
 
     def attach_variables(
         self,
-        variables: Variable | List[Variable],
+        variables: Union[Variable, List[Variable]],
         where: Optional[Literal["in", "out"]] = "in",
     ):
         """
@@ -211,7 +211,7 @@ class InputModel(LayerModel):
 
     def attach_variables(
         self,
-        variables: Variable | List[Variable],
+        variables: Union[Variable, List[Variable]],
         where: Optional[Literal["in", "out"]] = "in",
     ):
         """
@@ -301,7 +301,7 @@ class OutputModel(LayerModel):
 
     def attach_variables(
         self,
-        variables: Variable | List[Variable],
+        variables: Union[Variable, List[Variable]],
         where: Optional[Literal["in", "out"]] = "in",
     ):
         """
