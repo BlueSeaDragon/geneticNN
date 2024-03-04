@@ -167,10 +167,17 @@ class Variable(Hashable, ParameterListener):
         self.variable_io: Literal["in", "out"] = variable_io
         self.data_type = data_type
         self.linked_variables: set["Variable"] = linked_variables or []
-        self.attached_model: LayerModel = attached_model or []
+        self.attached_model: LayerModel = attached_model or None
         self.global_parameters: List[Parameter] = []
         self.instances: Dict[Hashable, VariableInstance] = {}
         self.instantiable: bool = instantiable
+
+        for dim in range(self.dimension):
+            param_name = "dim_{dim}"
+            parameter = Parameter(name=param_name,
+                                  parameter_type=int,
+                                  parent=self)
+            self.global_parameters.append(parameter)
 
         if linked_variables is None:
             self.linked_variables = set()

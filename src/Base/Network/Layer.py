@@ -9,15 +9,27 @@ class LayerIOLink:
     def __init__(
         self,
         input_layer: "Layer",
-        input_variable: Variable,
+        input_variable: Union[Variable, str],
         output_layer: "Layer",
-        output_variable: Variable,
+        output_variable: Union[Variable,str],
     ):
         self.input_layer = input_layer
+        if isinstance(input_variable, str):
+            input_model = self.input_layer.get_model()
+            input_variable = input_model.named_variables[input_variable]
         self.input_variable = input_variable
         self.output_layer = output_layer
+        if isinstance(output_variable, str):
+            output_model = self.output_layer.get_model()
+            output_variable = output_model.named_variables[output_variable]
         self.output_variable = output_variable
 
+    def make_link(self):
+        self.input_layer.set_io_links(self)
+        self.output_layer.set_io_links(self)
+    def remove_link(self):
+        self.input_layer.remove_io_link(self)
+        self.output_layer.remove_io_link(self)
     def __format__(self, format_spec):
         return (
             f"{self.__class__.__name__}({self.input_layer} - {self.input_variable}"
@@ -39,9 +51,10 @@ class Layer(Hashable):
 
     """
 
-    def __init__(self, model: LayerModel):
+    def __init__(self, model: LayerModel, name: str = ""):
         super(Layer, self).__init__()
         self.model = model
+        self.name = name
         model.attach_layer(self)
         self.inputs: Dict[Variable, Tuple[Layer, Variable]] = {}
         self.outputs: Dict[Variable, List[Tuple[Layer, Variable]]] = {}

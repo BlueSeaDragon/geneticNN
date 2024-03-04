@@ -299,7 +299,7 @@ class Network(Hashable):
         ]
         self.models = used_models
 
-    def get_unique_variables(self):
+    def get_unique_parameters(self):
         pass
 
     def __format__(self, format_spec):
