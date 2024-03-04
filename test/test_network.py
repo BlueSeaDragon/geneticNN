@@ -54,8 +54,8 @@ class TestLinearNetwork(unittest.TestCase):
 
         print(f"generating Linear Layer")
 
-        linear_file = "src/basic_templates/Linear.json"
-        print(Path(linear_file).absolute())
+        linear_file = Path("src/basic_templates/Linear.json")
+        print(linear_file.absolute())
         linear_model = LayerModel.TemplatedModel("linear",linear_file)
         linear_layer = Layer.Layer(linear_model)
 
@@ -75,6 +75,7 @@ class TestLinearNetwork(unittest.TestCase):
         )
 
         print(f"generated network {network}")
+
 
 class TestMultipleLinearNetwork(unittest.TestCase):
     def test_init(self):
@@ -106,8 +107,8 @@ class TestMultipleLinearNetwork(unittest.TestCase):
         linear2_layer = Layer.Layer( linear2_model,"linear2_layer")
 
         add_file = "src/basic_templates/Add.json"
-        Add_model = LayerModel.TemplatedModel("Add", add_file)
-        add_layer = Layer.Layer( Add_model,"add_layer")
+        add_model = LayerModel.TemplatedModel("Add", add_file)
+        add_layer = Layer.Layer(add_model, "add_layer")
 
         input_link = Layer.LayerIOLink(input_layer, "input", linear_layer1, "X")
         input_link2 = Layer.LayerIOLink(input_layer, "input", linear2_layer, "X")
@@ -124,7 +125,7 @@ class TestMultipleLinearNetwork(unittest.TestCase):
         output_link.make_link()
 
         network = Network.Network(
-            [input_model, linear1_model, linear2_model, output_model, Add_model],
+            [input_model, linear1_model, linear2_model, output_model, add_model],
             [input_layer, linear_layer1, linear_layer2, linear2_layer,add_layer,  output_layer],
             input_layer,
             output_layer,
