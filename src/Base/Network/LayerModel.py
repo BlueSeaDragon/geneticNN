@@ -56,6 +56,7 @@ class LayerModel(Hashable):
         name: str,
         input_variables: Optional[List[Variable]] = None,
         output_variables: Optional[List[Variable]] = None,
+        parameters: Optional[List[Parameter]] = None
     ):
         """
         Initializes a new instance of the LayerModel class.
@@ -69,13 +70,22 @@ class LayerModel(Hashable):
         """
         super(LayerModel, self).__init__()
         self.name = name
-        self.input_variables = input_variables or []
-        self.output_variables = output_variables or []
+        self.input_variables = []
+        self.output_variables = []
+        self.parameters = []
+        self.named_variables = {}
+        self.named_parameters = {}
+        if input_variables:
+            self.attach_variables(input_variables, where="in")
+        if output_variables:
+            self.attach_variables(output_variables, where="out")
+        if parameters:
+            self.attach_parameters(parameters)
         self.attached_layers = []
 
     def attach_variables(
         self,
-        variables: Variable | List[Variable],
+        variables: Union[Variable, List[Variable]],
         where: Optional[Literal["in", "out"]] = "in",
     ):
         """
@@ -103,7 +113,10 @@ class LayerModel(Hashable):
                     "incorrect place to put the variable : {where}".format(where=where)
                 )
             variables.attach_model(self)
-
+            if self.named_variables.get(variables.name, None) is None:
+                self.named_variables[variables.name] = variables
+            else:
+                raise KeyError(f"variable {variables.name} already used  in {self.name}")
         elif isinstance(variables, list):
             if where == "in":
                 self.input_variables.extend(variables)
@@ -115,6 +128,22 @@ class LayerModel(Hashable):
                 )
             for variable in variables:
                 variable.attach_model(self)
+                if self.named_variables.get(variable.name, None) is None:
+                    self.named_variables[variable.name] = variable
+                else:
+                    raise KeyError(f"variable {variable.name} already used  in {self.name}")
+
+    def attach_parameters(self, parameters: Union[Parameter, List[Parameter]]):
+        if isinstance(parameters, Parameter):
+            parameters = [parameters]
+        self.parameters.extend(parameters)
+        for parameter in parameters:
+            parameter.attach_parent(self)
+            if self.named_parameters.get(parameter.name, None) is None:
+                self.named_variables[parameter.name] = parameter
+            else:
+                raise KeyError(f"parameter name {parameter.name} already used in {self.name}")
+
 
     def attach_layer(self, layer: "Layer"):
         if isinstance(layer, Hashable):
@@ -211,7 +240,7 @@ class InputModel(LayerModel):
 
     def attach_variables(
         self,
-        variables: Variable | List[Variable],
+        variables: Union[Variable, List[Variable]],
         where: Optional[Literal["in", "out"]] = "in",
     ):
         """
@@ -229,18 +258,14 @@ class InputModel(LayerModel):
         -------
 
         """
-
         if isinstance(variables, Variable):
-            self.output_variables.append(variables)
-            variables.attach_model(self)
             variables.make_instantiable(False)
 
         elif isinstance(variables, list):
             self.output_variables.extend(variables)
             for variable in variables:
-                variable.attach_model(self)
                 variable.make_instantiable(False)
-
+        LayerModel.attach_variables(self, variables, where="out")
 
 class OutputModel(LayerModel):
     """
@@ -301,7 +326,7 @@ class OutputModel(LayerModel):
 
     def attach_variables(
         self,
-        variables: Variable | List[Variable],
+        variables: Union[Variable, List[Variable]],
         where: Optional[Literal["in", "out"]] = "in",
     ):
         """
@@ -321,30 +346,47 @@ class OutputModel(LayerModel):
         """
 
         if isinstance(variables, Variable):
-            self.input_variables.append(variables)
-            variables.attach_model(self)
             variables.make_instantiable(False)
 
         elif isinstance(variables, list):
-            self.input_variables.extend(variables)
             for variable in variables:
-                variable.attach_model(self)
                 variable.make_instantiable(False)
 
+        LayerModel.attach_variables(self, variables)
 
-##WIP##
+
 class TemplatedModel(LayerModel):
-    def __init__(self, name: str, template_type, source, template_source=""):
+    def __init__(self, name: str, template_source=""):
         super(TemplatedModel, self).__init__(name)
-        self.template_type = template_type
-        self.source = source
         self.template_source = template_source
         self._props = self.load_template_props(template_source)
-
+        self.template_name = self._props["name"]
+        self.python_source = self._props["source"]
         # build variables and parameters
 
+        for variable_name, variable_prop in self._props["variables"].items():
+            variable_io = variable_prop['IO']
+            variable_dim = variable_prop['dim']
+            variable_type = variable_prop.get('type', float)
+
+            variable = Variable(name = variable_name,
+                                dimension=variable_dim,
+                                data_type=variable_type,
+                                variable_io=variable_io)
+            self.attach_variables(variable, variable_io)
+        for param_name, param_prop in self._props["parameters"].items():
+            param_type = param_prop["type"]
+            parameter = Parameter(name=param_name,
+                                  parameter_type= param_type
+                                  )
+            self.attach_parameters(parameter)
+
+
+
+
     def load_template_props(self, source_file: str):
-        text = open(source_file).read()
-        text2 = text.split("BEGIN_PROPS")[1]
-        text2 = text2.split("END_PROPS")[0]
-        return json.loads(text2)
+        file = open(source_file, "r")
+        text = file.read()
+        file.close()
+
+        return json.loads(text)

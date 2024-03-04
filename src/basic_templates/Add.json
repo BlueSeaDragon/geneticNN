@@ -1,0 +1,11 @@
+{
+  "name": "Add",
+  "source": "",
+  "variables": {
+    "X1": {"dim":  1, "IO":  "in"},
+    "X2": {"dim":  1, "IO":  "in"},
+    "Y": {"dim":  1, "IO":  "out"}
+  },
+  "parameters": {
+  }
+}

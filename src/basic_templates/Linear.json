@@ -1,0 +1,12 @@
+{
+  "name": "Linear",
+  "source": "",
+  "variables": {
+    "X": {"dim":  1, "IO":  "in"},
+    "Y": {"dim":  1, "IO":  "out"}
+  },
+  "parameters": {
+    "input_dim": {"type":  "int"},
+    "output_dim":{"type":  "int"}
+  }
+}
